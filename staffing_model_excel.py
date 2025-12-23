@@ -1,9 +1,9 @@
 import math
 import argparse
 import sys
-import glob
 from dataclasses import dataclass, asdict
 import pandas as pd
+import os
 
 
 # ---------------------------------------------------------
@@ -112,7 +112,6 @@ def compute_staffing(scenario: ScenarioInput, params: Parameters):
     rooms_left -= solo_rooms
 
     faculty_buffer = faculty_left
-
     max_rooms_coverable = trainee_rooms + crna_rooms + solo_rooms
     rooms_left_to_cover = total_rooms - max_rooms_coverable
 
@@ -142,31 +141,33 @@ def compute_staffing(scenario: ScenarioInput, params: Parameters):
     )
 
 
-# ---------------------------------------------------------
-# Runner
-# ---------------------------------------------------------
-
 def run_scenarios(scenarios, params):
-    rows = []
-    for sc in scenarios:
-        rows.append(asdict(compute_staffing(sc, params)))
-    return pd.DataFrame(rows)
+    return pd.DataFrame(
+        [asdict(compute_staffing(sc, params)) for sc in scenarios]
+    )
 
 
 # ---------------------------------------------------------
-# Main (Excel-driven)
+# Main (manual Excel input)
 # ---------------------------------------------------------
 
 if __name__ == "__main__":
 
-    input_files = glob.glob("*_staffing_model_input.xlsx")
+    parser = argparse.ArgumentParser(
+        description="Run staffing model using Excel input"
+    )
+    parser.add_argument(
+        "--input_file",
+        required=True,
+        help="Excel input file name"
+    )
 
-    if not input_files:
-        print("ERROR: No staffing_model_input Excel file found.")
+    args = parser.parse_args()
+    input_file = args.input_file
+
+    if not os.path.exists(input_file):
+        print(f"ERROR: Input file not found: {input_file}")
         sys.exit(1)
-
-    input_file = input_files[0]
-    print(f"Using input file: {input_file}")
 
     df_input = pd.read_excel(input_file)
 
@@ -182,17 +183,16 @@ if __name__ == "__main__":
         print(f"ERROR: Input file must contain columns {required_cols}")
         sys.exit(1)
 
-    scenarios = []
-    for _, row in df_input.iterrows():
-        scenarios.append(
-            ScenarioInput(
-                name=row["scenario_name"],
-                total_rooms=int(row["total_rooms"]),
-                trainees_available=int(row["trainees"]),
-                crnas_available=int(row["crnas"]),
-                faculty_available=int(row["faculty"]),
-            )
+    scenarios = [
+        ScenarioInput(
+            name=row["scenario_name"],
+            total_rooms=int(row["total_rooms"]),
+            trainees_available=int(row["trainees"]),
+            crnas_available=int(row["crnas"]),
+            faculty_available=int(row["faculty"]),
         )
+        for _, row in df_input.iterrows()
+    ]
 
     params = Parameters()
     df_output = run_scenarios(scenarios, params)
