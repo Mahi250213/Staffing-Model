@@ -53,10 +53,11 @@ class ScenarioResult:
 
     rooms_covered_by_trainees: int
     rooms_covered_by_crnas: int
-    rooms_covered_by_faculty: int
 
     faculty_used_for_trainee_supervision: int
     faculty_used_for_crna_supervision: int
+
+    rooms_covered_by_faculty: int
 
     faculty_buffer: int
     max_rooms_coverable: int
@@ -130,10 +131,11 @@ def compute_staffing(scenario: ScenarioInput, params: Parameters):
 
         rooms_covered_by_trainees=trainee_rooms,
         rooms_covered_by_crnas=crna_rooms,
-        rooms_covered_by_faculty=solo_rooms,
 
         faculty_used_for_trainee_supervision=faculty_for_trainees,
         faculty_used_for_crna_supervision=faculty_for_crnas,
+
+        rooms_covered_by_faculty=solo_rooms,
 
         faculty_buffer=faculty_buffer,
         max_rooms_coverable=max_rooms_coverable,
@@ -204,3 +206,4 @@ if __name__ == "__main__":
     df_output.to_excel(output_file, index=False)
 
     print(f"Results saved to {output_file}")
+
