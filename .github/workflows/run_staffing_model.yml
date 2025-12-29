@@ -1,0 +1,36 @@
+name: Run Staffing Model
+
+on:
+  workflow_dispatch:
+    inputs:
+      input_excel:
+        description: "Input Excel file name (must exist in repo)"
+        required: true
+        default: "input_staffing.xlsx"
+
+jobs:
+  run-model:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: |
+          pip install pandas openpyxl
+
+      - name: Run staffing model
+        run: |
+          python run_staffing_model.py --input "${{ github.event.inputs.input_excel }}"
+
+      - name: Upload output Excel
+        uses: actions/upload-artifact@v4
+        with:
+          name: staffing-results
+          path: "*_output.xlsx"
