@@ -4,6 +4,21 @@ from openpyxl import load_workbook
 from openpyxl.styles import PatternFill, Font
 from openpyxl.utils import get_column_letter
 import argparse
+import sys
+from datetime import datetime
+
+class TeeLogger:
+    def __init__(self, logfile):
+        self.terminal = sys.stdout
+        self.log = open(logfile, "w", encoding="utf-8")
+
+    def write(self, message):
+        self.terminal.write(message)
+        self.log.write(message)
+
+    def flush(self):
+        self.terminal.flush()
+        self.log.flush()
 
 
 def run_staffing_model(input_excel, output_excel):
@@ -405,4 +420,16 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     output_file = args.input.replace(".xlsx", "_output.xlsx")
+    log_file = args.input.replace(".xlsx", "_run.log")
+
+    # Redirect all print statements to console + log file
+    sys.stdout = TeeLogger(log_file)
+
+    print(f"Staffing model started at {datetime.now()}")
+    print(f"Input file : {args.input}")
+    print(f"Output file: {output_file}")
+    print(f"Log file   : {log_file}")
+
     run_staffing_model(args.input, output_file)
+
+    print(f"Staffing model completed at {datetime.now()}")
