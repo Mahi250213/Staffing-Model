@@ -29,8 +29,10 @@ jobs:
         run: |
           python run_staffing_model.py --input "${{ github.event.inputs.input_excel }}"
 
-      - name: Upload output Excel
+      - name: Upload output files
         uses: actions/upload-artifact@v4
         with:
           name: staffing-results
-          path: "*_output.xlsx"
+          path: |
+            *_output.xlsx
+            *_run.log
