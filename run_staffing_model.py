@@ -155,7 +155,7 @@ def run_staffing_model(input_excel, output_excel):
         crnas = int(df.loc["crnas", d])
         faculty = int(df.loc["faculty", d])
 
-        fixed_crnas = 6
+        fixed_crnas = 5
         cardiac_faculty = 3
         nl_fac = 5
 
@@ -246,7 +246,8 @@ def run_staffing_model(input_excel, output_excel):
         supervisory = cardiac_faculty + faculty_for_trainees + faculty_for_crnas
         addition_faculty_supervisory = supervisory + solo_faculty
         faculty_needed = round_half_up(supervisory + solo_faculty)
-        final_faculty_required = faculty_needed + 2
+        asc_cd_faculty = 1
+        final_faculty_required = faculty_needed + 2 + asc_cd_faculty
         overage_faculty = faculty - final_faculty_required
 
         mor_asc_sat = final_faculty_required - nl_fac
@@ -266,10 +267,15 @@ def run_staffing_model(input_excel, output_excel):
             f"  Faculty covering rooms : "
             f"{supervisory} + {solo_faculty} = {faculty_needed}"
         )
+        # print(
+        #     f"  Final faculty required : "
+        #     f"{faculty_needed} + 2 (CD + NL) = {final_faculty_required}"
+        # )
         print(
             f"  Final faculty required : "
-            f"{faculty_needed} + 2 (CD + NL) = {final_faculty_required}"
+            f"{faculty_needed} + 2 (CD + NL) + {asc_cd_faculty} (ASC CD) = {final_faculty_required}"
         )
+
         print(
             f"  Faculty scheduled      : "
             f"{faculty}"
@@ -333,7 +339,7 @@ def run_staffing_model(input_excel, output_excel):
 
     # -------- Excel output (unchanged) --------
     write_row("NFP demand", {d: computed[d]["nfp"] for d in dates})
-    write_row("Demand (no Flex CRNAs)", {d: computed[d]["no_flex"] for d in dates})
+    #write_row("Demand (no Flex CRNAs)", {d: computed[d]["no_flex"] for d in dates})
     write_row("Main/NL/ASC Trainee", {d: computed[d]["trainee"] for d in dates})
     write_row("Solo Faculty", {d: computed[d]["solo"] for d in dates}, fill=yellow)
     write_row("Main/NL/ASC CRNA", {d: computed[d]["crna"] for d in dates})
@@ -387,6 +393,8 @@ def run_staffing_model(input_excel, output_excel):
         "+ NL OR Block",
         {d: 1 if computed[d]["final_faculty"] != "" else "" for d in dates}
     )
+
+    write_row("+ ASC CD", {d: 1 if computed[d]["final_faculty"] != "" else "" for d in dates})
 
     write_row("", {d: computed[d]["final_faculty"] for d in dates})
 
