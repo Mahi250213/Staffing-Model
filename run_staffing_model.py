@@ -338,7 +338,7 @@ def run_staffing_model(input_excel, output_excel):
     print("\n================ STAFFING MODEL RUN END ==================\n")
 
     # -------- Excel output (unchanged) --------
-    write_row("NFP demand", {d: computed[d]["nfp"] for d in dates})
+    write_row("Main/NL/ASC Demand", {d: computed[d]["nfp"] for d in dates})
     #write_row("Demand (no Flex CRNAs)", {d: computed[d]["no_flex"] for d in dates})
     write_row("Main/NL/ASC Trainee", {d: computed[d]["trainee"] for d in dates})
     write_row("Solo Faculty", {d: computed[d]["solo"] for d in dates}, fill=yellow)
