@@ -342,7 +342,8 @@ def run_staffing_model(input_excel, output_excel):
     #write_row("Demand (no Flex CRNAs)", {d: computed[d]["no_flex"] for d in dates})
     write_row("Main/NL/ASC Trainee", {d: computed[d]["trainee"] for d in dates})
     write_row("Solo Faculty", {d: computed[d]["solo"] for d in dates}, fill=yellow)
-    write_row("Main/NL/ASC CRNA", {d: computed[d]["crna"] for d in dates})
+    write_row("Main/NL/ASC CRNA", {d: df.loc["crnas", d] for d in dates})
+    write_row("Flex CRNAs Used", {d: computed[d]["crna"] for d in dates})
     write_row("difference", {d: computed[d]["diff"] for d in dates}, fill=blue)
 
     blank()
