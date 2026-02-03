@@ -234,12 +234,13 @@ def run_staffing_model(input_excel, output_excel):
         )
 
         # -------- Solo faculty --------
-        solo_faculty = min(available_faculty, available_rooms)
+        # solo_faculty = min(available_faculty, available_rooms)
+        solo_faculty = available_rooms
 
         print("\nSOLO FACULTY COVERAGE")
         print(
             f"  Solo faculty rooms     : "
-            f"min({available_faculty}, {available_rooms}) = {solo_faculty}"
+            f" {solo_faculty}"
         )
 
         # -------- Faculty summary --------
