@@ -159,7 +159,7 @@ def run_staffing_model(input_excel, output_excel):
         cardiac_faculty = 3
         nl_fac = 5
 
-        scheduled_flex_crnas = max(crnas - fixed_crnas, 0)
+        scheduled_flex_crnas = max(crnas, 0)
 
         print("\nINPUTS")
         print(f"  Rooms      : {total_rooms}")
@@ -168,17 +168,17 @@ def run_staffing_model(input_excel, output_excel):
         print(f"  Faculty    : {faculty}")
 
         # -------- Initial availability --------
-        available_rooms = total_rooms - fixed_crnas - cardiac_faculty
-        available_faculty = faculty - cardiac_faculty
+        available_rooms = total_rooms
+        available_faculty = faculty
 
         print("\nINITIAL AVAILABILITY")
         print(
-            f"  Available rooms after fixed & cardiac : "
-            f"{total_rooms} - {fixed_crnas} - {cardiac_faculty} = {available_rooms}"
+            f"  Available rooms: "
+            f"{total_rooms}"
         )
         print(
-            f"  Available faculty after cardiac       : "
-            f"{faculty} - {cardiac_faculty} = {available_faculty}"
+            f"  Available faculty: "
+            f"{faculty}"
         )
 
         # -------- Trainee coverage --------
@@ -294,17 +294,17 @@ def run_staffing_model(input_excel, output_excel):
         )
 
         # -------- CRNA summary --------
-        crna_demand = total_rooms - fixed_crnas - trainee_rooms - solo_faculty
+        crna_demand = total_rooms - trainee_rooms - solo_faculty
         crna_needed = crna_demand - scheduled_flex_crnas
 
         print("\nCRNA SUMMARY")
         print(
             f"  CRNA demand            : "
-            f"{total_rooms} - {fixed_crnas} - {trainee_rooms} - {solo_faculty} = {crna_demand}"
+            f"{total_rooms} - {trainee_rooms} - {solo_faculty} = {crna_demand}"
         )
         print(
             f"  CRNAs scheduled (flex) : "
-            f"{crnas} - {fixed_crnas} = {scheduled_flex_crnas}"
+            f"{crnas} = {scheduled_flex_crnas}"
         )
         print(
             f"  CRNAs needed           : "
@@ -313,11 +313,10 @@ def run_staffing_model(input_excel, output_excel):
 
         computed[d] = {
             "nfp": total_rooms,
-            "no_flex": total_rooms - fixed_crnas,
             "trainee": trainees,
             "solo": solo_faculty,
             "crna": crna_rooms,
-            "diff": (total_rooms - fixed_crnas) - trainees - crna_rooms,
+            "diff": total_rooms - trainees - crna_rooms,
             "1:1": cardiac_faculty,
             "1:2": faculty_for_trainees,
             "1:3.5": faculty_for_crnas,
@@ -339,11 +338,9 @@ def run_staffing_model(input_excel, output_excel):
 
     # -------- Excel output (unchanged) --------
     write_row("Main/NL/ASC Demand", {d: computed[d]["nfp"] for d in dates})
-    #write_row("Demand (no Flex CRNAs)", {d: computed[d]["no_flex"] for d in dates})
     write_row("Main/NL/ASC Trainee", {d: computed[d]["trainee"] for d in dates})
     write_row("Solo Faculty", {d: computed[d]["solo"] for d in dates}, fill=yellow)
     write_row("Main/NL/ASC CRNA", {d: df.loc["crnas", d] for d in dates})
-    write_row("Flex CRNAs Used", {d: computed[d]["crna"] for d in dates})
     write_row("difference", {d: computed[d]["diff"] for d in dates}, fill=blue)
 
     blank()
@@ -358,7 +355,6 @@ def run_staffing_model(input_excel, output_excel):
     blank()
     write_row("Supervisory Faculty needed", {d: computed[d]["supervisory"] for d in dates})
     write_row("Solo Faculty", {d: computed[d]["solo"] for d in dates})
-    # write_row("", {d: computed[d]["addition_supervisory_faculty"] for d in dates})
     write_row(
         "",
         {
