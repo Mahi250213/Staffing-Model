@@ -24,7 +24,7 @@ class TeeLogger:
 def run_staffing_model(input_excel, output_excel):
 
     def is_empty_day(df, d):
-        required = ["total_rooms", "trainees", "crnas", "faculty"]
+        required = ["demand", "trainees", "crnas", "faculty"]
         for r in required:
             if r not in df.index:
                 return True
@@ -150,7 +150,7 @@ def run_staffing_model(input_excel, output_excel):
             }
             continue
 
-        total_rooms = int(df.loc["total_rooms", d])
+        demand = int(df.loc["demand", d])
         trainees = int(df.loc["trainees", d])
         crnas = int(df.loc["crnas", d])
         faculty = int(df.loc["faculty", d])
@@ -162,19 +162,19 @@ def run_staffing_model(input_excel, output_excel):
         scheduled_flex_crnas = max(crnas, 0)
 
         print("\nINPUTS")
-        print(f"  Rooms      : {total_rooms}")
+        print(f"  Rooms      : {demand}")
         print(f"  Trainees   : {trainees}")
         print(f"  CRNAs      : {crnas}")
         print(f"  Faculty    : {faculty}")
 
         # -------- Initial availability --------
-        available_rooms = total_rooms
+        available_rooms = demand
         available_faculty = faculty
 
         print("\nINITIAL AVAILABILITY")
         print(
             f"  Available rooms: "
-            f"{total_rooms}"
+            f"{demand}"
         )
         print(
             f"  Available faculty: "
@@ -295,13 +295,13 @@ def run_staffing_model(input_excel, output_excel):
         )
 
         # -------- CRNA summary --------
-        crna_demand = total_rooms - trainee_rooms - solo_faculty
+        crna_demand = demand - trainee_rooms - solo_faculty
         crna_needed = crna_demand - scheduled_flex_crnas
 
         print("\nCRNA SUMMARY")
         print(
             f"  CRNA demand            : "
-            f"{total_rooms} - {trainee_rooms} - {solo_faculty} = {crna_demand}"
+            f"{demand} - {trainee_rooms} - {solo_faculty} = {crna_demand}"
         )
         print(
             f"  CRNAs scheduled (flex) : "
@@ -313,11 +313,11 @@ def run_staffing_model(input_excel, output_excel):
         )
 
         computed[d] = {
-            "nfp": total_rooms,
+            "nfp": demand,
             "trainee": trainees,
             "solo": solo_faculty,
             "crna": crna_rooms,
-            "diff": total_rooms - trainees - crna_rooms,
+            "diff": demand - trainees - crna_rooms,
             "1:1": cardiac_faculty,
             "1:2": faculty_for_trainees,
             "1:3.5": faculty_for_crnas,
